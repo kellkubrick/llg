@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 Is = 480
 K = 135000
 r = 5*1e-7
-Hz = 0.5
+Hz = 100
 C = 0.3
 dN_N = 0.05
 costheta = 0.707
 
 alpha = 0.01
-gamma = -5.3*1e7
+gamma = 5.3*1e7
 
 
 coef = gamma/(1+alpha**2)
@@ -20,13 +20,13 @@ M0 = (Is * 4 * np.pi * r**3)/3
 Havz = -8*np.pi*C*Is*dN_N*(1-1.5*costheta)/3
 
 # Задаем начальные условия
-mx = 0.6
+mx = 0.8
 my = 0
-mz = 0.8
+mz = 0.6
 
 # Задаем временной интервал и шаг
 t = 0
-dt = 1e-12
+dt = 1e-10
 steps=1000
 
 # Создаем списки для сохранения значений популяции и времени
