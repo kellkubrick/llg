@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-# Задаем параметры
+import matplotlib.animation as animation
 Is = 480
 K = 135000
 r = 5*1e-7
@@ -11,7 +9,7 @@ C = 0.3
 dN_N = 0.05
 costheta = 0.707
 h0 = 20
-w = 1e7
+w = 1e2
 
 alpha = 0.02
 gamma = 5.3*1e7
@@ -29,7 +27,7 @@ mz = 0
 # Задаем временной интервал и шаг
 t = 0
 dt = 1e-10
-steps=10000
+steps=1000
 
 # Создаем списки для сохранения значений популяции и времени
 time = []
@@ -68,13 +66,58 @@ for step in range(steps):
     mz_values.append(mz)
     # Обновляем время
     t += dt
+# Ваши данные
+# Предположим, что у вас есть массивы x, y, z и time
+x = np.array(mx_values)
+y = np.array(my_values)
+z = np.array(mz_values)
+time = np.array(time)
 
-time=[1e9*t for t in time]
-# Рисуем график численности популяций
-plt.plot(time, mx_values, label='mx')
-plt.plot(time, my_values, label='my')
-plt.plot(time, mz_values, label='mz')
-plt.xlabel('Time, ns')
-plt.ylabel('m')
-plt.legend()
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Инициализация вектора и стрелки
+line, = ax.plot([0, x[0]], [0, y[0]], [0, z[0]], color='r', lw=2)
+arrow = ax.quiver(0, 0, 0, x[0], y[0], z[0], color='b', length=1, normalize=True)
+
+# Для следа будем сохранять предыдущие точки
+trace, = ax.plot([], [], [], color='g', lw=1, alpha=0.5)
+trace_x, trace_y, trace_z = [], [], []
+
+# Установка пределов осей
+ax.set_xlim([-2, 2])
+ax.set_ylim([-2, 2])
+ax.set_zlim([-2, 2])
+
+# Функция инициализации анимации
+def init():
+    line.set_data([], [])
+    line.set_3d_properties([])
+    trace.set_data([], [])
+    trace.set_3d_properties([])
+    return line, trace, arrow
+
+# Функция анимации
+def animate(i):
+    # Обновляем вектор
+    line.set_data([0, x[i]], [0, y[i]])
+    line.set_3d_properties([0, z[i]])
+
+    # Обновляем стрелку
+    #arrow.remove()  # Удаляем старую стрелку
+    arrow = ax.quiver(0, 0, 0, x[i], y[i], z[i], color='b', length=1, normalize=True)
+
+    # Добавляем текущую точку к следу
+    trace_x.append(x[i])
+    trace_y.append(y[i])
+    trace_z.append(z[i])
+    trace.set_data(trace_x, trace_y)
+    trace.set_3d_properties(trace_z)
+
+    return line, trace, arrow
+
+# Создание анимации
+ani = animation.FuncAnimation(fig, animate, frames=len(time), init_func=init, blit=True, interval=10)
+
+# Показать анимацию
 plt.show()
