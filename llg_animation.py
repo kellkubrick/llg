@@ -21,8 +21,8 @@ Havz = -8*np.pi*C*Is*dN_N*(1-1.5*costheta)/3
 
 # Задаем начальные условия
 mx = 0.6
-my = 0.8
-mz = 0
+my = 0
+mz = 0.8
 
 # Задаем временной интервал и шаг
 t = 0
@@ -99,12 +99,13 @@ def init():
 
 # Функция анимации
 def animate(i):
+    global arrow
     # Обновляем вектор
     line.set_data([0, x[i]], [0, y[i]])
     line.set_3d_properties([0, z[i]])
 
     # Обновляем стрелку
-    #arrow.remove()  # Удаляем старую стрелку
+    arrow.remove()  # Удаляем старую стрелку
     arrow = ax.quiver(0, 0, 0, x[i], y[i], z[i], color='b', length=1, normalize=True)
 
     # Добавляем текущую точку к следу
