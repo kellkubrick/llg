@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 Is = 480
 K = 135000
 r = 5*1e-7
-Hz = 0.5
+Hz = 0
 C = 0.3
 dN_N = 0.05
 costheta = 0.707
-h0 = 0
-w = 0
+h0 = 20
+w = 1e7
 
 alpha = 0.02
 gamma = 5.3*1e7
@@ -22,14 +22,14 @@ M0 = (Is * 4 * np.pi * r**3)/3
 Havz = -8*np.pi*C*Is*dN_N*(1-1.5*costheta)/3
 
 # Задаем начальные условия
-mx = 0
-my = 0
-mz = -1
+mx = 0.6
+my = 0.8
+mz = 0
 
 # Задаем временной интервал и шаг
 t = 0
-dt = 1e-9
-steps=1000
+dt = 1e-10
+steps=10000
 
 # Создаем списки для сохранения значений популяции и времени
 time = []
@@ -61,17 +61,11 @@ for step in range(steps):
     my += (dmy1 + 2 * dmy2 + 2 * dmy3 + dmy4) / 6
     mz += (dmz1 + 2 * dmz2 + 2 * dmz3 + dmz4) / 6
 
-    norm = np.sqrt(mx ** 2 + my ** 2 + mz ** 2)
-    if norm > 1e-9:  # Избегаем деления на ноль
-        mx /= norm
-        my /= norm
-        mz /= norm
-
     # Сохраняем текущие значения
     time.append(t)
-    mx_values.append(M0*mx)
-    my_values.append(M0*my)
-    mz_values.append(M0*mz)
+    mx_values.append(mx)
+    my_values.append(my)
+    mz_values.append(mz)
     # Обновляем время
     t += dt
 

@@ -6,15 +6,16 @@ import matplotlib.pyplot as plt
 Is = 480
 K = 135000
 r = 5*1e-7
-Hz = 1
+Hz = 100
 C = 0.3
 dN_N = 0.05
 costheta = 0.707
 h0 = 0
 w = 0
 
-alpha = 0.01
-gamma = 5.3*1e7
+alpha = 0.02
+#gamma = 5.3*1e7
+gamma = 8.79*1e6
 
 
 coef = -gamma/(1+alpha**2)
@@ -23,14 +24,14 @@ M0 = Is
 Havz = -8*np.pi*C*Is*dN_N*(1-1.5*costheta)/3
 
 # Задаем начальные условия
-mx = 0
-my = 1
-mz = 0
+mx = np.sqrt(2)/2
+my = 0
+mz = np.sqrt(2)/2
 
 # Задаем временной интервал и шаг
 t = 0
-dt = 1e-9
-steps=100
+dt = 1e-10
+steps=300
 
 
 # Создаем списки для сохранения значений популяции и времени
@@ -52,30 +53,30 @@ def h_dd():
 
 
 
-def h_eff_x(m):
-    return 0*h_anis(m)
-def h_eff_y(m):
-    return 1*h_anis(m)
-def h_eff_z():
-    return h_ext() + h_dd()
+def h_eff_x(mx, my, mz):
+    return (h_anis(mx)/2) + (h_anis(mz)/2)
+def h_eff_y(mx, my, mz):
+    return 0*((h_anis(mx)/2) + (h_anis(my)/2))
+def h_eff_z(mx,my,mz):
+    return h_ext() + h_dd() + (h_anis(mx)/2) + (h_anis(mz)/2)
 
 
 for step in range(steps):
-    dmx1 = dt * coef*( (my + alpha*mx*mz)*h_eff_z() - (mz - alpha*my*mx)*h_eff_y(my) - alpha*(my**2 + mz**2)*h_eff_x(mx) )
-    dmy1 = dt * coef*( (mz + alpha*my*mx)*h_eff_x(mx) - (mx - alpha*mz*my)*h_eff_z() - alpha*(mz**2 + mx**2)*h_eff_y(my) )
-    dmz1 = dt * coef*( (mx + alpha*mz*my)*h_eff_y(my) - (my - alpha*mx*mz)*h_eff_x(mx) - alpha*(mx**2 + my**2)*h_eff_z() )
+    dmx1 = dt * coef*( (my + alpha*mx*mz)*h_eff_z(mx,my,mz) - (mz - alpha*my*mx)*h_eff_y(mx,my,mz) - alpha*(my**2 + mz**2)*h_eff_x(mx,my,mz) )
+    dmy1 = dt * coef*( (mz + alpha*my*mx)*h_eff_x(mx,my,mz) - (mx - alpha*mz*my)*h_eff_z(mx,my,mz) - alpha*(mz**2 + mx**2)*h_eff_y(mx,my,mz) )
+    dmz1 = dt * coef*( (mx + alpha*mz*my)*h_eff_y(mx,my,mz) - (my - alpha*mx*mz)*h_eff_x(mx,my,mz) - alpha*(mx**2 + my**2)*h_eff_z(mx,my,mz) )
 
-    dmx2 = dt * coef*( ((my+dmy1/2) + alpha*(mx+dmx1/2)*(mz+dmz1/2))*h_eff_z() - ((mz+dmz1/2) - alpha*(my+dmy1/2)*(mx+dmx1/2))*h_eff_y((my+dmy1/2)) - alpha*((my+dmy1/2)**2 + (mz+dmz1/2)**2)*h_eff_x((mx+dmx1/2)) )
-    dmy2 = dt * coef*( ((mz+dmz1/2) + alpha*(my+dmy1/2)*(mx+dmx1/2))*h_eff_x(mx+dmx1/2) - ((mx+dmx1/2) - alpha*(mz+dmz1/2)*(my+dmy1/2))*h_eff_z() - alpha*((mz+dmz1/2)**2 + (mx+dmx1/2)**2)*h_eff_y((my+dmy1/2)) )
-    dmz2 = dt * coef*( ((mx+dmx1/2) + alpha*(mz+dmz1/2)*(my+dmy1/2))*h_eff_y((my+dmy1/2)) - ((my+dmy1/2) - alpha*(mx+dmx1/2)*(mz+dmz1/2))*h_eff_x(mx+dmx1/2) - alpha*((mx+dmx1/2)**2 + (my+dmy1/2)**2)*h_eff_z() )
+    dmx2 = dt * coef*( ((my+dmy1/2) + alpha*(mx+dmx1/2)*(mz+dmz1/2))*h_eff_z(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) - ((mz+dmz1/2) - alpha*(my+dmy1/2)*(mx+dmx1/2))*h_eff_y(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) - alpha*((my+dmy1/2)**2 + (mz+dmz1/2)**2)*h_eff_x(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) )
+    dmy2 = dt * coef*( ((mz+dmz1/2) + alpha*(my+dmy1/2)*(mx+dmx1/2))*h_eff_x(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) - ((mx+dmx1/2) - alpha*(mz+dmz1/2)*(my+dmy1/2))*h_eff_z(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) - alpha*((mz+dmz1/2)**2 + (mx+dmx1/2)**2)*h_eff_y(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) )
+    dmz2 = dt * coef*( ((mx+dmx1/2) + alpha*(mz+dmz1/2)*(my+dmy1/2))*h_eff_y(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) - ((my+dmy1/2) - alpha*(mx+dmx1/2)*(mz+dmz1/2))*h_eff_x(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) - alpha*((mx+dmx1/2)**2 + (my+dmy1/2)**2)*h_eff_z(mx+dmx1/2, my+dmy1/2, mz+dmz1/2) )
 
-    dmx3 = dt * coef*( ((my+dmy2/2) + alpha*(mx+dmx2/2)*(mz+dmz2/2))*h_eff_z() - ((mz+dmz2/2) - alpha*(my+dmy2/2)*(mx+dmx2/2))*h_eff_y((my+dmy2/2)) - alpha*((my+dmy2/2)**2 + (mz+dmz2/2)**2)*h_eff_x((mx+dmx2/2)) )
-    dmy3 = dt * coef*( ((mz+dmz2/2) + alpha*(my+dmy2/2)*(mx+dmx2/2))*h_eff_x(mx+dmx2/2) - ((mx+dmx2/2) - alpha*(mz+dmz2/2)*(my+dmy2/2))*h_eff_z() - alpha*((mz+dmz2/2)**2 + (mx+dmx2/2)**2)*h_eff_y((my+dmy2/2)) )
-    dmz3 = dt * coef*( ((mx+dmx2/2) + alpha*(mz+dmz2/2)*(my+dmy2/2))*h_eff_y((my+dmy2/2)) - ((my+dmy2/2) - alpha*(mx+dmx2/2)*(mz+dmz2/2))*h_eff_x(mx+dmx2/2) - alpha*((mx+dmx2/2)**2 + (my+dmy2/2)**2)*h_eff_z() )
+    dmx3 = dt * coef*( ((my+dmy2/2) + alpha*(mx+dmx2/2)*(mz+dmz2/2))*h_eff_z(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) - ((mz+dmz2/2) - alpha*(my+dmy2/2)*(mx+dmx2/2))*h_eff_y(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) - alpha*((my+dmy2/2)**2 + (mz+dmz2/2)**2)*h_eff_x(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) )
+    dmy3 = dt * coef*( ((mz+dmz2/2) + alpha*(my+dmy2/2)*(mx+dmx2/2))*h_eff_x(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) - ((mx+dmx2/2) - alpha*(mz+dmz2/2)*(my+dmy2/2))*h_eff_z(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) - alpha*((mz+dmz2/2)**2 + (mx+dmx2/2)**2)*h_eff_y(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) )
+    dmz3 = dt * coef*( ((mx+dmx2/2) + alpha*(mz+dmz2/2)*(my+dmy2/2))*h_eff_y(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) - ((my+dmy2/2) - alpha*(mx+dmx2/2)*(mz+dmz2/2))*h_eff_x(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) - alpha*((mx+dmx2/2)**2 + (my+dmy2/2)**2)*h_eff_z(mx+dmx2/2, my+dmy2/2, mz+dmz2/2) )
 
-    dmx4 = dt * coef*( ((my+dmy3) + alpha*(mx+dmx3)*(mz+dmz3))*h_eff_z() - ((mz+dmz3) - alpha*(my+dmy3)*(mx+dmx3))*h_eff_y(my+dmy3) - alpha*((my+dmy3)**2 + (mz+dmz3)**2)*h_eff_x((mx+dmx3)) )
-    dmy4 = dt * coef*( ((mz+dmz3) + alpha*(my+dmy3)*(mx+dmx3))*h_eff_x(mx+dmx3) - ((mx+dmx3) - alpha*(mz+dmz3)*(my+dmy3))*h_eff_z() - alpha*((mz+dmz3)**2 + (mx+dmx3)**2)*h_eff_y((my+dmy3)) )
-    dmz4 = dt * coef*( ((mx+dmx3) + alpha*(mz+dmz3)*(my+dmy3))*h_eff_y((my+dmy3)) - ((my+dmy3) - alpha*(mx+dmx3)*(mz+dmz3))*h_eff_x(mx+dmx3) - alpha*((mx+dmx3)**2 + (my+dmy3)**2)*h_eff_z() )
+    dmx4 = dt * coef*( ((my+dmy3) + alpha*(mx+dmx3)*(mz+dmz3))*h_eff_z(mx+dmx3,my+dmy3,mz+dmz3) - ((mz+dmz3) - alpha*(my+dmy3)*(mx+dmx3))*h_eff_y(mx+dmx3,my+dmy3,mz+dmz3) - alpha*((my+dmy3)**2 + (mz+dmz3)**2)*h_eff_x(mx+dmx3,my+dmy3,mz+dmz3) )
+    dmy4 = dt * coef*( ((mz+dmz3) + alpha*(my+dmy3)*(mx+dmx3))*h_eff_x(mx+dmx3,my+dmy3,mz+dmz3) - ((mx+dmx3) - alpha*(mz+dmz3)*(my+dmy3))*h_eff_z(mx+dmx3,my+dmy3,mz+dmz3) - alpha*((mz+dmz3)**2 + (mx+dmx3)**2)*h_eff_y(mx+dmx3,my+dmy3,mz+dmz3) )
+    dmz4 = dt * coef*( ((mx+dmx3) + alpha*(mz+dmz3)*(my+dmy3))*h_eff_y(mx+dmx3,my+dmy3,mz+dmz3) - ((my+dmy3) - alpha*(mx+dmx3)*(mz+dmz3))*h_eff_x(mx+dmx3,my+dmy3,mz+dmz3) - alpha*((mx+dmx3)**2 + (my+dmy3)**2)*h_eff_z(mx+dmx3,my+dmy3,mz+dmz3) )
 
     # Обновляем значения x и y
     mx += (dmx1 + 2 * dmx2 + 2 * dmx3 + dmx4) / 6
