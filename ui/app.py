@@ -164,4 +164,4 @@ def index() -> None:
 
 
 def main() -> None:
-    ui.run(title="sLLG relaxation", reload=False)
+    ui.run(title="sLLG relaxation", reload=False, host="0.0.0.0", port=8081)
