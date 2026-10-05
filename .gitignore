@@ -18,3 +18,7 @@ __pycache__/
 
 
 venv/
+
+# Generated simulation results
+results/*
+!results/.gitkeep

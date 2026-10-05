@@ -1,0 +1,30 @@
+[project]
+name = "llg"
+version = "0.1.0"
+description = "GPU-oriented stochastic Landau-Lifshitz-Gilbert ensemble solver"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "jax>=0.11.2",
+    "nicegui>=3.17.1",
+    "numpy>=2.5.3",
+    "plotly>=7.1.0",
+]
+
+[project.optional-dependencies]
+gpu-cuda12 = [
+    "jax[cuda12]>=0.11.2 ; sys_platform == 'linux'",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.10",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+exclude = ["legacy"]
